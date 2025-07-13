@@ -1,212 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Source Code Pro", sans-serif;
-}
-
 body {
-    width: 100vw;
-    height: 100vh;
-    background-color: rgb(221, 219, 219);
-    display: block;
-    place-items: center;
+  background: linear-gradient(to right, #2c3e50, #3498db);
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 2rem;
 }
-
-.container {
-    width: 800px;
-    height: 700px;
-    background-color: white;
-    box-shadow: rgba(0,0,0,0.15) 1.95px 1.95px 2.6px;
-    display: flex;
+h1, h2 {
+  text-align: center;
+  margin-bottom: 1rem;
 }
-
-.ledger {
-    color: white;
-    background-color: rgb(43, 42, 42);
-    padding: 10px;
-    flex: 1;
-    color: white;
-    border-radius: 0.5cap;
-    margin: 2px;
-}
-
-.ledger h1 {
-    font-weight: 400;
-    text-align: center;
-}
-
-.ledger h2,
-.ledher h4,
-.ledger h1 {
-    font-weight: 400;
-    margin-bottom: 5px;
-    padding: 5px; 
-}
-
-.ledger h4 {
-    font-weight: 400; /* Sets font weight to 400 */
-}
-
-.inc-exp-container {
-    font-weight: 400;
-    display: flex;
-    padding: 5px;
-    gap: 10px;
-}
-
-.inc-exp-container div {
-    font-weight: 400;
-    text-align: center;
-    text-transform: uppercase;
-    padding: 20px;
-    font-size: 18px;
-    flex: 1;
-}
-
-.inc h5,
-.exp h5 {
-    font-weight: 400; /* Sets font weight to 400 */
-}
-
-.inc-exp-container div {
-    font-weight: 400;
-    font-size: 22px;
-}
-
-.inc-exp-container div.inc{
-    font-weight: 400;
-    border: 3px solid #1dd1a1;
-    color: #1dd1a1;
-}
-
-.inc-exp-container div.exp{
-    font-weight: 400;
-    border: 3px solid #ee5253;
-    color: #ee5253;
-}
-
-#form{
-    font-weight: 400;
-    padding: 5px;
-    margin-top: 20px;
-}
-
-.form-control {
-    padding: 5px;
-    margin-top: 20px;
-}
-
-.form-control {
-    margin-top: 10px;
-}
-
 label {
-    display: inline-block;
-    margin: 10px 0;
-    font-size: 18px;
-    font-weight: 400;
+  margin-top: 0.5rem;
+  font-weight: bold;
 }
-
-input[type="text"],
-input[type="number"] {
-    border: 1px solid #dedede;
-    display: block;
-    width: 100%;
-    font-size: 16px;
-    padding: 10px;
-    outline: none;
-    border-radius: 2px;
+pre {
+  background: #111;
+  color: #0f0;
+  font-family: monospace;
+  padding: 1rem;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow-y: auto;
 }
-
-.btn {
-    background-color: #2e86de;
-    color: white;
-    display: block;
-    width: 100%;
-    margin-top: 20px;
-    padding: 10px;
-    border: 0;
-    font-weight: 700;
-    border-radius: 5px;
+.section {
+  background: rgba(255,255,255,0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  margin-top: 2rem;
 }
-
-.transaction {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow-y: scroll;
-}
-
-.transaction h3 {
-    text-transform: uppercase;
-    padding: 10px;
-    border-bottom: 1px soild #f1f1f1;
-    margin-bottom: 5px;
-}
-
-.trans {
-    list-style: none;
-}
-
-.trans li {
-    background-color: #fff;
-    color: #333;
-    box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
-    padding: 10px;
-    margin: 10px 0;
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Income items with green border */
-.trans li.inc {
-    border-left: 5px solid #1dd1a1;
-}
-
-/* Expense items with red border */
-.trans li.exp {
-    border-left: 5px solid #ee5253;
-}
-
-.btn-del {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-weight: 600;
-    color: #fff;
-    background-color: #e74c3c;
-    border: none;
-    font-size: 10px;
-    line-height: 10px;
-    cursor: url('small-cursor.png') 10 10, auto;
-    opacity: 0;
-}
-
-.trans li:hover .btn-del {
-    opacity: 1;
-}
-
-::-webkit-scrollbar {
-    width: 5px;
-}
-
-::-webkit-scrollbar-tracker {
-    background-color: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #2e86de;
-    border-radius: 8px;
-}
-

@@ -1,65 +1,98 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const balanceEl = document.getElementById("balance");
-    const incomeEl = document.getElementById("inc-amt");
-    const expenseEl = document.getElementById("exp-amt");
-    const form = document.getElementById("form");
-    const descInput = document.getElementById("desc");
-    const amountInput = document.getElementById("amount");
-    const transactionsEl = document.getElementById("trans");
+function round(n) {
+  return Math.round(n * 100) / 100;
+}
 
-    // Retrieve transactions from Local Storage or initialize an empty array
-    let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+function runCalculation() {
+  const get = id => parseFloat(document.getElementById(id)?.value) || 0;
+  const toolCount = get("toolCount");
+  const toolTime = get("toolTime");
+  const loadTime = get("loadTime");
+  const rapidDist = get("rapidDist");
+  const rapidRate = get("rapidRate");
+  const totalDepth = get("totalDepth");
+  const passDepth = get("passDepth");
+  const dwellTime = get("dwellTime");
+  const accDec = get("accDec");
+  const spindleSpeed = get("spindleSpeed");
 
-    // Function to update the UI
-    function updateDOM() {
-        transactionsEl.innerHTML = "";
-        let totalIncome = 0, totalExpense = 0;
+  const passes = Math.ceil(totalDepth / passDepth);
+  const rapidTime = (rapidDist / rapidRate) * 60;
+  const dwellTotal = dwellTime * passes;
+  const cuttingTime = passes * ((rapidDist / rapidRate) * 60);
+  const totalTime = round(toolCount * toolTime + loadTime + rapidTime + dwellTotal + cuttingTime + accDec);
 
-        transactions.forEach((trans, index) => {
-            const sign = trans.amount < 0 ? "-" : "+";
-            const item = document.createElement("li");
-            item.classList.add(trans.amount < 0 ? "exp" : "inc");
-            item.innerHTML = `
-                ${trans.desc} <span>${sign} ₹${Math.abs(trans.amount).toFixed(2)}</span>
-                <button class="btn-del" onclick="deleteTransaction(${index})">x</button>
-            `;
+  document.getElementById("cycleResult").textContent = `🕒 Total Cycle Time: ${totalTime} seconds`;
 
-            transactionsEl.appendChild(item);
-            if (trans.amount < 0) totalExpense += Math.abs(trans.amount);
-            else totalIncome += trans.amount;
-        });
+  const gcode = [
+    "% ; Program Start",
+    "G21 ; Metric Units",
+    "G90 ; Absolute Positioning",
+    `T${toolCount} M6 ; Tool Change`,
+    `G43 H${toolCount} ; Tool Offset`,
+    `S${spindleSpeed} M3 ; Spindle ON`,
+    "M8 ; Coolant ON",
+    "G0 Z5.0 ; Safe Z Height",
+    "G0 X0 Y0 ; Start Position"
+  ];
 
-        balanceEl.textContent = `₹ ${(totalIncome - totalExpense).toFixed(2)}`;
-        incomeEl.textContent = `₹ ${totalIncome.toFixed(2)}`;
-        expenseEl.textContent = `₹ ${totalExpense.toFixed(2)}`;
+  for (let i = 1; i <= passes; i++) {
+    const depth = round(-i * passDepth);
+    gcode.push(`(Pass ${i})`);
+    gcode.push(`G1 Z${depth} F${rapidRate} ; Plunge`);
+    gcode.push(`G1 X${rapidDist} F${rapidRate} ; Feed`);
+    gcode.push(`G4 P${dwellTime} ; Dwell`);
+    gcode.push("G0 Z5.0 ; Retract");
+  }
 
-        localStorage.setItem("transactions", JSON.stringify(transactions));
+  gcode.push("M9 ; Coolant OFF");
+  gcode.push("M5 ; Spindle OFF");
+  gcode.push("G0 X0 Y0 ; Return Home");
+  gcode.push(`(Cycle Time: ${totalTime} sec)`);
+  gcode.push("M30 ; Program End");
+  gcode.push("%");
+
+  document.getElementById("gCodeOutput").textContent = gcode.join("\n");
+}
+
+function downloadGCode() {
+  const code = document.getElementById("gCodeOutput")?.textContent || "";
+  const blob = new Blob([code], { type: 'text/plain' });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "cnc_program.gcode";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function viewImportedGCode() {
+  const file = document.getElementById("gcodeImport")?.files[0];
+  if (!file) return alert("Please select a G-code file first.");
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById("uploadedGCodeView").textContent = reader.result;
+  };
+  reader.readAsText(file);
+}
+
+function optimizeGCode() {
+  const original = document.getElementById("uploadedGCodeView").textContent;
+  if (!original) return alert("No G-code loaded.");
+  const lines = original.split("\n");
+  const optimized = [];
+  const changes = [];
+
+  for (let line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("G4") || trimmed.includes("dwell")) {
+      changes.push("Removed dwell command → `" + trimmed + "`");
+      continue;
     }
+    optimized.push(line);
+  }
 
-    // Function to handle adding a transaction
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const desc = descInput.value.trim();
-        const amount = parseFloat(amountInput.value.trim());
-
-        if (desc === "" || isNaN(amount)) {
-            alert("Please enter a valid description and amount.");
-            return;
-        }
-
-        transactions.push({ desc, amount });
-        descInput.value = "";
-        amountInput.value = "";
-        updateDOM();
-    });
-
-    // Function to delete a transaction
-    window.deleteTransaction = (index) => {
-        transactions.splice(index, 1);
-        updateDOM();
-    };
-
-    // Initialize the tracker with existing transactions
-    updateDOM();
-});
+  document.getElementById("optimizedGCodeView").textContent = optimized.join("\n");
+  document.getElementById("optimizationExplanation").innerHTML =
+    `<h4>✅ Cycle Time Reduction Applied</h4><ul>` +
+    changes.map(change => `<li>${change}</li>`).join("") + `</ul>`;
+}
